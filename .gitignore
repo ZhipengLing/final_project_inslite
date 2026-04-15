@@ -1,0 +1,29 @@
+# CDK
+cdk.out/
+cdk-outputs.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+.env
+
+# Lambda layer build artifacts
+layers/**/*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
