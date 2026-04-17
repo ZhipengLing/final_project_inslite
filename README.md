@@ -145,7 +145,7 @@ bash scripts/deploy.sh
 
 After deploy completes, open the **Frontend URL** printed in the terminal.
 
-### Demo Flow (10 Steps)
+### Demo Flow (13 Steps)
 
 | Step | Action | Expected Result |
 |------|--------|-----------------|
@@ -153,14 +153,17 @@ After deploy completes, open the **Frontend URL** printed in the terminal.
 | **2** | Click **Alice** quick login | Toast: login success, redirected to Feed |
 | **3** | Open an **incognito window**, open the same URL, click **Bob** quick login | Bob logged in, sees Feed |
 | **4** | Bob: click **+** in navbar, select an image, write a caption, click **Share Post** | Toasts: presign 201, "Uploading to S3...", post 201. Redirected to Feed — post visible **with image** |
-| **5** | Switch to Alice's window, click the **profile** icon in navbar, change URL to `#profile/<Bob's userId>`, click **Follow** | Button changes to "Following", follower count 0 -> 1 |
+| **5** | Switch to Alice's window, click the **search** icon, search `bob`, then click **Follow** on Bob | Search result card appears, follow button switches to "Following" |
 | **6** | Alice: click **Home** icon (house) in navbar | Bob's post with image appears in Alice's Feed |
 | **7** | Alice: click the **heart** button on the post | Heart turns red, likes count 0 -> 1 |
-| **8** | Alice: click **comment** icon to open post detail, type "Amazing view!", click **Post** | Comment appears below the post |
-| **9** | Switch to Bob's window, click the **bell** icon | Notifications page shows: "alice started following you", "alice liked your post", "alice commented on your post" |
-| **10** | Expand the **API Activity Log** panel at the bottom | See all API requests with method, path, status, and response time |
+| **8** | Alice: click **comment** icon to open post detail, type "Amazing view!", click **Post** | Top-level comment appears below the post |
+| **9** | Bob: open the same post detail, click **Reply** under Alice's comment, type "Thanks!", click **Reply** | Nested reply appears indented under Alice's comment |
+| **10** | Switch to Bob's window, click the **bell** icon | Notifications page shows: "alice started following you", "alice liked your post", "alice commented on your post" |
+| **11** | Bob: go back to Feed and click the **🗑️ delete** button on his post, confirm the dialog | Post is removed from UI; backend deletes post, likes, comments, and media object |
+| **12** | Switch to Alice's window and refresh Feed (`#feed`) | Bob's deleted post no longer appears |
+| **13** | Expand the **API Activity Log** panel at the bottom | See new calls such as `GET /search/users`, `POST /posts/{postId}/comments` (reply), and `DELETE /posts/{postId}` |
 
-### How to Get Bob's userId
+### Optional: How to Get Bob's userId
 
 In Bob's browser, press `F12` to open DevTools, go to Console, and run:
 
@@ -168,7 +171,7 @@ In Bob's browser, press `F12` to open DevTools, go to Console, and run:
 JSON.parse(localStorage.getItem("inslite_user")).userId
 ```
 
-Copy the userId and use it in Alice's address bar: `#profile/<paste-userId-here>`
+Copy the userId and use it in Alice's address bar: `#profile/<paste-userId-here>` (optional direct profile jump).
 
 ### Backup: curl-based Demo
 
