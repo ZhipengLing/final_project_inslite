@@ -152,6 +152,11 @@ function logout() {
 function renderPostCard(post) {
   const liked = post._liked ? "liked" : "";
   const heartIcon = post._liked ? "\u2764\uFE0F" : "\u2661";
+  const currentUser = getCurrentUser();
+  const isOwner = currentUser.userId === post.userId;
+  const deleteBtn = isOwner
+    ? `<button onclick="deletePost('${post.postId}')" title="Delete" style="margin-left:auto;color:var(--danger,#e74c3c);background:none;border:none;cursor:pointer;font-size:18px;">🗑️</button>`
+    : "";
   return `
     <div class="post-card" id="post-${post.postId}">
       <div class="post-header">
@@ -159,6 +164,7 @@ function renderPostCard(post) {
           ${avatarHTML(post.username, null)}
           ${post.username}
         </a>
+        ${deleteBtn}
       </div>
       ${post.imageUrl ? `<img class="post-image" src="${post.imageUrl}" alt="Post image">` : ""}
       <div class="post-actions">
@@ -192,5 +198,15 @@ async function toggleLike(postId, btn) {
       const commentCount = commentMatch ? commentMatch[1] : "0";
       stats.textContent = `${newCount} likes \u00B7 ${commentCount} comments`;
     }
+  } catch (e) { /* toast already shown by api */ }
+}
+
+async function deletePost(postId) {
+  if (!confirm("Delete this post?")) return;
+  try {
+    await api.del(`/posts/${postId}`);
+    const card = document.getElementById(`post-${postId}`);
+    if (card) card.remove();
+    showToast("Post deleted", "success");
   } catch (e) { /* toast already shown by api */ }
 }
