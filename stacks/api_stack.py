@@ -88,6 +88,9 @@ class ApiStack(Stack):
         notification_fn = self._create_lambda("NotificationFunction", "notification")
         notifications_table.grant_read_write_data(notification_fn)
 
+        search_fn = self._create_lambda("SearchFunction", "search")
+        users_table.grant_read_data(search_fn)
+
         api = apigateway.RestApi(
             self,
             "InstaLiteApi",
@@ -151,6 +154,10 @@ class ApiStack(Stack):
         notif_id_resource = notif_resource.add_resource("{notifId}")
         notif_read_resource = notif_id_resource.add_resource("read")
         notif_read_resource.add_method("PUT", apigateway.LambdaIntegration(notification_fn, proxy=True))
+
+        search_resource = api.root.add_resource("search")
+        search_users_resource = search_resource.add_resource("users")
+        search_users_resource.add_method("GET", apigateway.LambdaIntegration(search_fn, proxy=True))
 
         self.api_url = api.url
 

@@ -88,6 +88,7 @@ function renderNavbar() {
       <a href="#feed" class="nav-logo" onclick="forceNavigate('feed')">InstaLite</a>
       <div class="nav-links">
         <a href="#feed" title="Home" onclick="forceNavigate('feed')">&#x1F3E0;</a>
+        <a href="#search" title="Search" onclick="forceNavigate('search')">&#x1F50D;</a>
         <a href="#new" title="New Post" onclick="forceNavigate('new')">&#x2795;</a>
         <a href="#notifications" title="Notifications" id="nav-notif" onclick="forceNavigate('notifications')">
           &#x1F514;<span id="notif-badge" class="notif-badge" style="display:none">0</span>

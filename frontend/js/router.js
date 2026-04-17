@@ -6,6 +6,7 @@ const routes = {
   post:          renderPostDetail,
   profile:       renderProfile,
   notifications: renderNotifications,
+  search:        renderSearch,
 };
 
 const publicPages = ["login"];

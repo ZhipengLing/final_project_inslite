@@ -126,12 +126,11 @@ This destroys all CDK stacks and removes all associated AWS resources.
 
 | Member | Microservices | Key Work |
 |--------|---------------|----------|
-| A | Auth + User Profile | JWT authentication, user CRUD, Lambda Layer |
-| B | Post Creation + Media Upload | S3 presigned URLs, post creation, image handling |
-| C | Post Read + Feed | Query patterns, feed aggregation, DynamoDB GSIs |
-| D | Like + Comment | Social interactions, atomic counters, notification writes |
-| E | Follow + Notification + Frontend | Follow graph, notification list, full frontend SPA |
-
+| Tian Yuan | Auth + User Profile | JWT authentication, user CRUD, Lambda Layer |
+| Zhipeng Ling | Post Creation + Media Upload | S3 presigned URLs, post creation, image handling |
+| Xijia Zeng | Post Read + Feed | Query patterns, feed aggregation, DynamoDB GSIs |
+| Hailey Pang | Like + Comment | Social interactions, atomic counters, notification writes |
+| Yuchong Zhang | Follow + Notification + Frontend | Follow graph, notification list, full frontend SPA |
 ---
 
 ## Live Demo Guide
