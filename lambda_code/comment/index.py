@@ -39,7 +39,6 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         print(f"Unhandled error: {exc}")
         return error_response(500, "Internal server error")
 
-
 def handle_create_comment(event: Dict) -> Dict:
     user = verify_token(event)
     if not user:
@@ -48,6 +47,7 @@ def handle_create_comment(event: Dict) -> Dict:
     post_id = get_path_param(event, "postId")
     body = get_body(event)
     text = body.get("text", "").strip()
+    parent_comment_id = body.get("parentCommentId", None)
 
     if not text:
         return error_response(400, "Comment text is required")
@@ -65,8 +65,13 @@ def handle_create_comment(event: Dict) -> Dict:
         "text": text,
         "createdAt": now,
     }
+    if parent_comment_id:
+        item["parentCommentId"] = parent_comment_id
+
     put_item(comments_table, item)
-    update_counter(posts_table, {"postId": post_id}, "commentCount", 1)
+    
+    if not parent_comment_id:
+        update_counter(posts_table, {"postId": post_id}, "commentCount", 1)
 
     post = get_item(posts_table, {"postId": post_id})
     if post and post.get("userId") != user["userId"]:
@@ -86,7 +91,6 @@ def handle_create_comment(event: Dict) -> Dict:
         )
 
     return success_response(item, 201)
-
 
 def handle_get_comments(event: Dict) -> Dict:
     post_id = get_path_param(event, "postId")
