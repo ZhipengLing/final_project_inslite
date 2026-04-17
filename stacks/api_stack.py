@@ -45,8 +45,6 @@ class ApiStack(Stack):
             "JWT_SECRET": "insta-lite-secret-2025",
         }
 
-        # ── Lambda Functions ─────────────────────────────────
-
         auth_fn = self._create_lambda("AuthFunction", "auth")
         users_table.grant_read_write_data(auth_fn)
 
@@ -56,6 +54,10 @@ class ApiStack(Stack):
         post_create_fn = self._create_lambda("PostCreateFunction", "post_create")
         posts_table.grant_read_write_data(post_create_fn)
         users_table.grant_read_write_data(post_create_fn)
+        likes_table.grant_read_write_data(post_create_fn)
+        comments_table.grant_read_write_data(post_create_fn)
+        media_bucket.grant_read(post_create_fn)
+        media_bucket.grant_delete(post_create_fn)
 
         post_read_fn = self._create_lambda("PostReadFunction", "post_read")
         posts_table.grant_read_data(post_read_fn)
@@ -86,8 +88,6 @@ class ApiStack(Stack):
         notification_fn = self._create_lambda("NotificationFunction", "notification")
         notifications_table.grant_read_write_data(notification_fn)
 
-        # ── API Gateway ──────────────────────────────────────
-
         api = apigateway.RestApi(
             self,
             "InstaLiteApi",
@@ -101,24 +101,20 @@ class ApiStack(Stack):
             deploy_options=apigateway.StageOptions(stage_name="prod"),
         )
 
-        # /auth/signup, /auth/login
         auth_resource = api.root.add_resource("auth")
         auth_signup = auth_resource.add_resource("signup")
         auth_login = auth_resource.add_resource("login")
         auth_signup.add_method("POST", apigateway.LambdaIntegration(auth_fn, proxy=True))
         auth_login.add_method("POST", apigateway.LambdaIntegration(auth_fn, proxy=True))
 
-        # /users/{userId}
         users_resource = api.root.add_resource("users")
         user_resource = users_resource.add_resource("{userId}")
         user_resource.add_method("GET", apigateway.LambdaIntegration(user_profile_fn, proxy=True))
         user_resource.add_method("PUT", apigateway.LambdaIntegration(user_profile_fn, proxy=True))
 
-        # /users/{userId}/posts
         user_posts_resource = user_resource.add_resource("posts")
         user_posts_resource.add_method("GET", apigateway.LambdaIntegration(post_read_fn, proxy=True))
 
-        # /users/{userId}/follow, /users/{userId}/followers, /users/{userId}/following
         user_follow_resource = user_resource.add_resource("follow")
         user_follow_resource.add_method("POST", apigateway.LambdaIntegration(follow_fn, proxy=True))
         user_follow_resource.add_method("DELETE", apigateway.LambdaIntegration(follow_fn, proxy=True))
@@ -127,34 +123,29 @@ class ApiStack(Stack):
         user_following_resource = user_resource.add_resource("following")
         user_following_resource.add_method("GET", apigateway.LambdaIntegration(follow_fn, proxy=True))
 
-        # /posts, /posts/{postId}
         posts_resource = api.root.add_resource("posts")
         posts_resource.add_method("POST", apigateway.LambdaIntegration(post_create_fn, proxy=True))
         post_resource = posts_resource.add_resource("{postId}")
         post_resource.add_method("GET", apigateway.LambdaIntegration(post_read_fn, proxy=True))
+        post_resource.add_method("DELETE", apigateway.LambdaIntegration(post_create_fn, proxy=True))
 
-        # /posts/{postId}/like, /posts/{postId}/likes
         like_resource = post_resource.add_resource("like")
         like_resource.add_method("POST", apigateway.LambdaIntegration(like_fn, proxy=True))
         like_resource.add_method("DELETE", apigateway.LambdaIntegration(like_fn, proxy=True))
         likes_resource = post_resource.add_resource("likes")
         likes_resource.add_method("GET", apigateway.LambdaIntegration(like_fn, proxy=True))
 
-        # /posts/{postId}/comments
         comments_resource = post_resource.add_resource("comments")
         comments_resource.add_method("POST", apigateway.LambdaIntegration(comment_fn, proxy=True))
         comments_resource.add_method("GET", apigateway.LambdaIntegration(comment_fn, proxy=True))
 
-        # /media/presign
         media_resource = api.root.add_resource("media")
         presign_resource = media_resource.add_resource("presign")
         presign_resource.add_method("POST", apigateway.LambdaIntegration(media_fn, proxy=True))
 
-        # /feed
         feed_resource = api.root.add_resource("feed")
         feed_resource.add_method("GET", apigateway.LambdaIntegration(feed_fn, proxy=True))
 
-        # /notifications, /notifications/{notifId}/read
         notif_resource = api.root.add_resource("notifications")
         notif_resource.add_method("GET", apigateway.LambdaIntegration(notification_fn, proxy=True))
         notif_id_resource = notif_resource.add_resource("{notifId}")
